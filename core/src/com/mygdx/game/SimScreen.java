@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -28,6 +29,13 @@ public class SimScreen implements Screen{
 
     int currentlySelectedTile = -1;
     //Object that allwos us to draw shapes
+
+    Dude dude = new Dude(new Location(0,0), myWorld);
+
+    boolean showWorld = true;
+
+    Texture questionBotton = new Texture("question.png");
+
     private ShapeRenderer shapeRenderer;
 
     //Camera to view our virtual world
@@ -79,10 +87,11 @@ public class SimScreen implements Screen{
 
         //all drawing of graphics MUST be in between begin/end
         spriteBatch.begin();
-        myWorld.draw(spriteBatch);
+        myWorld.draw(spriteBatch, showWorld);
         drawTooBar();
         handleMouseClick();
         drawDebug();
+
         spriteBatch.end();
     }
 
@@ -106,6 +115,10 @@ public class SimScreen implements Screen{
             else if(mouseX>= 650 && mouseX<= 700 && mouseY > 290 && mouseY<= 340){
                 currentlySelectedTile = WumpusWorld.GOLD;
             }
+            else if(mouseX>= 650 && mouseX<= 700 && mouseY > 375 && mouseY<= 425){
+                showWorld = !showWorld;
+                System.out.println("alskvhz;sdv");
+            }
             else if(currentlySelectedTile != -1){
                 Location worlLoc = myWorld.convertCoordsToRowCol(mouseX,mouseY);
                 myWorld.placeTile(currentlySelectedTile, worlLoc);
@@ -114,6 +127,13 @@ public class SimScreen implements Screen{
 
         }
     }
+
+    public void handleKeyPresses(){
+        if(Gdx.input.isButtonJustPressed(input.key)){
+
+        }
+    }
+
 
     @Override
     public void resize(int width, int height) {
@@ -132,6 +152,7 @@ public class SimScreen implements Screen{
         spriteBatch.draw(myWorld.getPitTile(), 650, 360);
         spriteBatch.draw(myWorld.getWumpusTile(), 650, 310);
         spriteBatch.draw(myWorld.getGoldTile(), 650, 260);
+        spriteBatch.draw(questionBotton, 650, 150);
 
         if(currentlySelectedTile != -1) {
             Point p = convertFromMouseToWorldCoords(Gdx.input.getX(), Gdx.input.getY());
