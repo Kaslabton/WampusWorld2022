@@ -28,9 +28,9 @@ public class WumpusWorld {
 
 
     private Texture groundTile, spiderTile, pitTile,wumpusTile,goldTile,webTile,
-            windTile,glitterTile,stinkTile,blackTile;
+            windTile,glitterTile,stinkTile,blackTile;emptyChest;
     public static final int GROUND = 0, SPIDER = 1, PIT = 2, WUMPUS = 3, GOLD = 4,
-            WEB = 11, WIND = 12, STINK = 13, GLITTER = 14;
+            WEB = 11, WIND = 12, STINK = 13, GLITTER = 14, EMPTYCHEST = 15;
 
     public WumpusWorld(){
         groundTile = new Texture("groundTile.png");
@@ -43,6 +43,7 @@ public class WumpusWorld {
         glitterTile = new Texture("glitterTile.png");
         stinkTile = new Texture("stinkTile.png");
         blackTile = new Texture("blackTile.png");
+        emptyChest = new Texture("emptyChest.png");
         tileWidth = blackTile.getWidth();
 
     }
@@ -107,11 +108,33 @@ public class WumpusWorld {
                 loc.getCol()>= 0 && loc.getCol()< world[0].length;
     }
 
+    public int getTile(Location loc){
+        if(isValid(loc)){
+            return world[loc.getRow()][loc.getCol()];
+        }
+        return -1;//if given loc is not valid
+    }
+
 
     public Point convertRowColToCoords(Location loc){
         int x = (loc.getCol()*50)+xoffset;
         int y = (loc.getRow()*50)-(600-yoffest);
         return new Point(x,0);
+    }
+
+    public void Reset(){
+        for(int i= 0; i< world.length;i++){
+            for(int j= 0; j< world[i].length;j++){
+                world[i][j]= 0;
+                visible[i][j] = false;
+            }
+        }
+    }
+    public void removeGold(Location loc){
+        if (isValid(loc) && world[loc.getRow()][loc.getCol()] == GOLD){
+            ArrayList<Location> n = getNeighbors();
+            world[loc.getRow()][loc.getCol()]
+        }
     }
 
     public void draw(SpriteBatch spriteBatch, boolean showHidden){
@@ -137,7 +160,8 @@ public class WumpusWorld {
                     spriteBatch.draw(webTile,xoffset+row*50, yoffest-col*50);
                 else if(world[row][col] == STINK)
                     spriteBatch.draw(stinkTile,xoffset+row*50, yoffest-col*50);
-
+                else if(world[row][col] == EMPTYCHEST && (visible[row][col]||showHidden))
+                    spriteBatch.draw(emptychestTile,xoffset+col*tileWidth, yoffest-row*tile);
             }//end inner for
         }//end outer for
     }//end method draw

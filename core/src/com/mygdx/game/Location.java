@@ -9,6 +9,10 @@ public class Location {
         this.col = col;
     }
 
+    public boolean equals(Location other){
+        return row
+    }
+
     public int getRow() {
         return row;
     }

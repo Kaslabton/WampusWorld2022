@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 
 public class SimScreen implements Screen{
@@ -30,12 +31,12 @@ public class SimScreen implements Screen{
     int currentlySelectedTile = -1;
     //Object that allwos us to draw shapes
 
-    Dude dude = new Dude(new Location(0,0), myWorld);
+    Dude dude = new Dude(new Location(0,0), myWorld, false);
 
     boolean showWorld = true;
 
     Texture questionBotton = new Texture("question.png");
-
+    Texture trophyBotton = new Texture("trophy.png");
     private ShapeRenderer shapeRenderer;
 
     //Camera to view our virtual world
@@ -47,6 +48,9 @@ public class SimScreen implements Screen{
 
     //runs one time, at the very beginning
     //all setup should happen here
+    boolean simOver = false;
+    boolean runAI = false;
+
     @Override
     public void show() {
         camera = new OrthographicCamera(); //2D camera
@@ -78,6 +82,7 @@ public class SimScreen implements Screen{
     //this method runs as fast as it can, repeatedly, constantly looped
     @Override
     public void render(float delta) {
+        if(runAI)
         clearScreen();
         //Ai or
         //all drawing of shapes MUST be in between begin/end
@@ -119,6 +124,9 @@ public class SimScreen implements Screen{
                 showWorld = !showWorld;
                 System.out.println("alskvhz;sdv");
             }
+            else if(mouseX>= 650 && mouseX<= 700 && mouseY > 435 && mouseY<= 485){
+                runAI = true;
+            }
             else if(currentlySelectedTile != -1){
                 Location worlLoc = myWorld.convertCoordsToRowCol(mouseX,mouseY);
                 myWorld.placeTile(currentlySelectedTile, worlLoc);
@@ -129,10 +137,32 @@ public class SimScreen implements Screen{
     }
 
     public void handleKeyPresses(){
-        if(Gdx.input.isButtonJustPressed(input.key)){
+        if(!simOver) {
+            if (Gdx.input.isButtonJustPressed(Input.Keys.D)) {
+                dude.moveLeft();
+            } else if (Gdx.input.isButtonJustPressed(Input.Keys.A)) {
+                dude.moveRight();
+            } else if (Gdx.input.isButtonJustPressed(Input.Keys.S)) {
+                dude.moveDown();
+            }
+            int tileUnderDude = myWorld.getTile(dude.getLoc());
+            if (tileUnderDude == WumpusWorld.WUMPUS || tileUnderDude == WumpusWorld.SPIDER || tileUnderDude == WumpusWorld.PIT) {
+                simOver = true;
+            } else if (tileUnderDude == WumpusWorld.GOLD){
+                sethasGold(true);
+            }
 
         }
+        else{
+            if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+                myWorld.Reset();
+                dude.reset(new Location(9,0));
+                simOver = false;
+            }
+        }
+
     }
+
 
 
     @Override
@@ -146,13 +176,19 @@ public class SimScreen implements Screen{
     }
 
     public void drawTooBar(){
+        if(simOver){
+            defaultFont.draw(spriteBatch, "SimOver", 300, 580);
+        }
         defaultFont.draw(spriteBatch, "Toolbar", 650, 550);
+        defaultFont.draw(spriteBatch,"Total Steps" + dude.getTotalsteps(), 630, 80);
+
         spriteBatch.draw(myWorld.getGroundTile(), 650, 460);
         spriteBatch.draw(myWorld.getSpiderTile(), 650, 410);
         spriteBatch.draw(myWorld.getPitTile(), 650, 360);
         spriteBatch.draw(myWorld.getWumpusTile(), 650, 310);
         spriteBatch.draw(myWorld.getGoldTile(), 650, 260);
         spriteBatch.draw(questionBotton, 650, 150);
+        spriteBatch.draw(trophyBotton, 650, 115);
 
         if(currentlySelectedTile != -1) {
             Point p = convertFromMouseToWorldCoords(Gdx.input.getX(), Gdx.input.getY());
